@@ -9,7 +9,7 @@ using System.Timers;
 
 namespace Power
 {
-    class Model17//Bson limited slowly no right search destiny
+    class Model17//Bson,mongoDB shoulen't save so large(wide?) bson about 200kb size
     {
         BsonDocument my_bson = new BsonDocument();
         BsonArray arr_my_bson = new BsonArray();
@@ -19,7 +19,7 @@ namespace Power
         int int_list_refresh;
         int count_run;
         int new_key_index;
-        int pass = 0;
+        int pass = 1;
         int int_stdout = 100;
         Random rnd = new Random();
         readonly string[] props = typeof(BsonValue).GetProperties().Select(prop => prop.PropertyType.Name).Distinct().ToArray();
@@ -36,7 +36,7 @@ namespace Power
         void GetPower()
         {
             for (int i = 0; i < current_bson.Count(); i++) { if (current_bson[i].IsBsonDocument) { deep_bson.Add(current_bson[i]); break; } }
-            if (deep_bson.Count >= 10)/* depth */ { deep_bson = new BsonArray(); int_list_refresh++; }
+            if (deep_bson.Count >= 10)/* depth */ { deep_bson = new BsonArray(); int_list_refresh++; }//whe this line can't change place
             current_bson = deep_bson.LastOrDefault()?.AsBsonDocument ?? my_bson;
             if (int_list_refresh >= 1000)/* size */ { ReleaseBson(); }
         }
@@ -55,41 +55,13 @@ namespace Power
         }
         BsonValue GetBsonValue()
         {
-            switch (rnd.Next(props.Length))
-            {
-                case 1:
-                case 2:
-                case 3:
-                case 4:
-                case 5:
-                    return "";
-                case 6:
-                case 7:
-                case 8:
-                case 9:
-                case 10:
-                    return rnd.Next(10000);
-                case 11:
-                case 12:
-                case 13:
-                case 14:
-                case 15:
-                    return rnd.Next(2) == 0 ? true : false;
-                case 16:
-                case 17:
-                case 18:
-                case 19:
-                case 20:
-                    return DateTime.Now;
-                case 21:
-                case 22:
-                case 23:
-                case 24:
-                case 25:
-                    return new BsonArray();
-                default://0,26,27,28
-                    return new BsonDocument();
-            }
+            int luck = rnd.Next(props.Length);//props.Length=29
+            if (luck < 5) return "";
+            else if (luck < 10) return rnd.Next(10000);
+            else if (luck < 15) return rnd.Next(2) == 0 ? true : false;
+            else if (luck < 20)  return DateTime.Now; 
+            else if (luck < 25)  return new BsonArray(); 
+            else  return new BsonDocument(); 
             //string all_type = "[Boolean, BsonArray, BsonBinaryData, BsonDateTime, BsonDocument, BsonJavaScript, BsonJavaScriptWithScope, BsonMaxKey, BsonMinKey, BsonNull, BsonRegularExpression, BsonSymbol, BsonTimestamp, BsonUndefined, BsonValue, Byte[], DateTime, Decimal, Decimal128, Double, Guid, Int32, Int64, Nullable`1, ObjectId, Regex, String, BsonType, Object]";
             //do
             //{
@@ -401,7 +373,7 @@ namespace Power
     class Model3//预先的出是否超出而决定表达那一个权限 false
     {
         static int self = 0;
-        static bool over() { return self == 0; }
+        static bool Over() { return self == 0; }
         Random rnd = new Random();
         static int r;
         static BsonDocument Bson = new BsonDocument();
@@ -432,17 +404,17 @@ namespace Power
                     }
                     else
                     {
-                        Bson[self.ToString()].AsBsonDocument.Set(r.ToString(), over());
+                        Bson[self.ToString()].AsBsonDocument.Set(r.ToString(), Over());
                     }
                 }
                 else
                 {
-                    Bson[self.ToString()].AsBsonDocument.Set(r.ToString(), over());
+                    Bson[self.ToString()].AsBsonDocument.Set(r.ToString(), Over());
                 }
             }
             else
             {
-                Bson.Set(self.ToString(), new BsonDocument(r.ToString(), over()));
+                Bson.Set(self.ToString(), new BsonDocument(r.ToString(), Over()));
             }
         }
     }
