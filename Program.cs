@@ -44,7 +44,7 @@ namespace Power
         void ChangePower() { current_bson.Set(NewKey(), GetBsonValue()); }
         public BsonDocument GetBson() { return my_bson; }
         public BsonArray GetBsons() { if (my_bson.Count() != 0) { arr_my_bson.Add(new BsonDocument(my_bson)); } return arr_my_bson; }
-        public void AddBson(BsonValue bson_value) { }
+        public void AddBson(BsonValue bson_value) { if (bson_value == null) { } }
         string NewKey() { return new_key_index++.ToString(); }
         void Stdout()
         {
@@ -59,9 +59,9 @@ namespace Power
             if (luck < 5) return "";
             else if (luck < 10) return rnd.Next(10000);
             else if (luck < 15) return rnd.Next(2) == 0 ? true : false;
-            else if (luck < 20)  return DateTime.Now; 
-            else if (luck < 25)  return new BsonArray(); 
-            else  return new BsonDocument(); 
+            else if (luck < 20) return DateTime.Now;
+            else if (luck < 25) return new BsonArray();
+            else return new BsonDocument();
             //string all_type = "[Boolean, BsonArray, BsonBinaryData, BsonDateTime, BsonDocument, BsonJavaScript, BsonJavaScriptWithScope, BsonMaxKey, BsonMinKey, BsonNull, BsonRegularExpression, BsonSymbol, BsonTimestamp, BsonUndefined, BsonValue, Byte[], DateTime, Decimal, Decimal128, Double, Guid, Int32, Int64, Nullable`1, ObjectId, Regex, String, BsonType, Object]";
             //do
             //{
@@ -857,7 +857,7 @@ namespace Power
             bson.Set("pass", (DateTime.Now - start).TotalMilliseconds);
             Console.WriteLine(string.Format("{0}:占用:{1},释放:{2},当前:{3}/{4}", str.PadLeft(10, ' '), bson["pass"], bson["release"], bson["tick"], bson["require"]));
             if (!bson["refs"].AsBsonArray.Contains(MethodBase.GetCurrentMethod().Name)) { bson["refs"].AsBsonArray.Add(MethodBase.GetCurrentMethod().Name); }
-            bsonArray.Add(new BsonDocument() { { str, new BsonDocument() { { "time", DateTime.Now }, bson } } });
+            bsonArray.Add(new BsonDocument { { str, new BsonDocument() { { "time", DateTime.Now }, bson } } });
             mongo.Reflex(new BsonDocument(mongo_key, new BsonDocument() { { str, new BsonDocument() { { "time", DateTime.Now }, bson } } }));
         }
         public void Ref2()
