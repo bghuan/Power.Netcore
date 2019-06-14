@@ -9,19 +9,77 @@ using System.Timers;
 
 namespace Power
 {
+    class Model19
+    {
+        int int_can_clear = 10;
+        int int_repeat_remain = 3;
+        BsonArray bson_see = new BsonArray();
+        BsonArray bson_know = new BsonArray();
+        int int_see { get { return bson_see.Count; } }
+        int int_know { get { return bson_know.Count; } }
+        int int_clear { get { return int_see / int_know; } }
+        public void see(BsonDocument bson)
+        {
+            bson_see.Add(bson);
+            if (bson_see.Count > int_can_clear)
+            {
+                bson.RemoveAt(0);
+            }
+            if (bson_see.Contains(bson) && bson_see.Count(s => s == bson) > int_repeat_remain)
+            {
+                bson_know.Add(bson);
+            }
+            if (bson_know.Contains(bson) && bson_know.Count(s => s == bson) > int_clear)
+            {
+                right();
+            }
+        }
+        void right()
+        {
+            Reflect();
+        }
+        public void Reflect()
+        {
+            Console.WriteLine("right.    right should be turn to change the see,and connect to the part of return try clear.");
+        }
+    }
+    ///<summary>
+    ///循环去到更加清晰
+    ///</summary>
+    ///<param name="int_clear">清晰系数</param>
+    ///<param name="is_clear">清晰的判断</param>
+    ///<param name="not_cleat">当不清晰</param>
+    ///<param name="be_clear">当清晰</param>
+    class Model18
+    {
+        int int_clear = 1;
+        bool is_clear()
+        {
+            //suo
+            return int_clear > 1;
+        }
+        public void not_clear()//tend to clear
+        {
+
+        }
+        public void clear()//tend to not_clear 
+        {
+
+        }
+    }
     class Model17//Bson,mongoDB shoulen't save so large(wide?) bson about 200kb size
     {
-        BsonDocument my_bson = new BsonDocument();
-        BsonArray arr_my_bson = new BsonArray();
-        BsonArray deep_bson = new BsonArray();
-        BsonDocument current_bson = new BsonDocument();
-        public bool pause = true;
-        int int_list_refresh;
+        int pass = 1;
         int count_run;
         int new_key_index;
-        int pass = 1;
+        int int_list_refresh;
         int int_stdout = 100;
+        public bool pause = true;
         Random rnd = new Random();
+        BsonArray deep_bson = new BsonArray();
+        BsonArray arr_my_bson = new BsonArray();
+        BsonDocument my_bson = new BsonDocument();
+        BsonDocument current_bson = new BsonDocument();
         readonly string[] props = typeof(BsonValue).GetProperties().Select(prop => prop.PropertyType.Name).Distinct().ToArray();
 
         public void Listen() { Thread thread = new Thread(Run); thread.Start(); thread.IsBackground = true; }
@@ -36,7 +94,7 @@ namespace Power
         void GetPower()
         {
             for (int i = 0; i < current_bson.Count(); i++) { if (current_bson[i].IsBsonDocument) { deep_bson.Add(current_bson[i]); break; } }
-            if (deep_bson.Count >= 10)/* depth */ { deep_bson = new BsonArray(); int_list_refresh++; }//whe this line can't change place
+            if (deep_bson.Count >= 10)/* depth */ { deep_bson = new BsonArray(); int_list_refresh++; }//why this line can't move
             current_bson = deep_bson.LastOrDefault()?.AsBsonDocument ?? my_bson;
             if (int_list_refresh >= 1000)/* size */ { ReleaseBson(); }
         }
@@ -56,7 +114,7 @@ namespace Power
         BsonValue GetBsonValue()
         {
             int luck = rnd.Next(props.Length);//props.Length=29
-            if (luck < 5) return "";
+            if (luck < 5) return GetRandomString(rnd.Next(1, 10), false, true, false, false);
             else if (luck < 10) return rnd.Next(10000);
             else if (luck < 15) return rnd.Next(2) == 0 ? true : false;
             else if (luck < 20) return DateTime.Now;
@@ -83,14 +141,63 @@ namespace Power
             //}
             //while (true);
         }
+        #region 5.0 生成随机字符串 + static string GetRandomString(int length, bool useNum, bool useLow, bool useUpp, bool useSpe, string custom)
+        ///<summary>
+        ///生成随机字符串 
+        ///</summary>
+        ///<param name="length">目标字符串的长度</param>
+        ///<param name="useNum">是否包含数字，1=包含，默认为包含</param>
+        ///<param name="useLow">是否包含小写字母，1=包含，默认为包含</param>
+        ///<param name="useUpp">是否包含大写字母，1=包含，默认为包含</param>
+        ///<param name="useSpe">是否包含特殊字符，1=包含，默认为不包含</param>
+        ///<param name="custom">要包含的自定义字符，直接输入要包含的字符列表</param>
+        ///<returns>指定长度的随机字符串</returns>
+        public static string GetRandomString(int length, bool useNum, bool useLow, bool useUpp, bool useSpe, string custom = "")
+        {
+            byte[] b = new byte[4];
+            new System.Security.Cryptography.RNGCryptoServiceProvider().GetBytes(b);
+            Random r = new Random(BitConverter.ToInt32(b, 0));
+            string s = null, str = custom;
+            if (useNum == true) { str += "0123456789"; }
+            if (useLow == true) { str += "abcdefghijklmnopqrstuvwxyz"; }
+            if (useUpp == true) { str += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; }
+            if (useSpe == true) { str += "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"; }
+            for (int i = 0; i < length; i++)
+            {
+                s += str.Substring(r.Next(0, str.Length - 1), 1);
+            }
+            return s;
+        }
+        #endregion
+        public static T CreateInstance<T>(int i = 10)//缺少传入参数,不确定可否用T判断生成规则T
+        {
+            try
+            {
+                var props = typeof(BsonValue).GetProperties();
+                var prop = props[i];
+                var o = prop.GetType();
+                object obj = Activator.CreateInstance(o, true);
+                return (T)obj;
+            }
+            catch { }
+            return default;
+        }
         void ReleaseBson()
         {
             Console.WriteLine("--------------------------ReleaseBson--------------------------");
+            Console.WriteLine(my_bson.ToString().Length);
             arr_my_bson.Add(new BsonDocument(my_bson));//C# Bson no size limit no width limit just have depth limit
             my_bson = new BsonDocument();
             deep_bson = new BsonArray();
             current_bson = new BsonDocument();
             int_list_refresh = 0;
+        }
+        void computer_bson()
+        {
+            if (my_bson.ToString().Length > Math.Pow(2, 22))
+            {
+                my_bson.RemoveElement(my_bson.LastOrDefault());
+            }
         }
     }
     class Program : StaticPower
@@ -105,7 +212,7 @@ namespace Power
         {
             var model = new Model17();
             model.Listen();
-            new MongoDB().Create(new BsonDocument("time", DateTime.Now.ToString()));
+            new MongoDB().Read(new BsonDocument("time", DateTime.Now.ToString()));
             BsonValue bsonValue;
             while ((bsonValue = Console.ReadLine()).ToString().ToLower() != "exit")
             {
@@ -739,7 +846,7 @@ namespace Power
         }
         public static void Save(BsonDocument bson)
         {
-            new MongoDB().Create(bson);
+            // new MongoDB().Create(bson);
             string dir = "./log/";
             if (Directory.Exists(dir) == false) { Directory.CreateDirectory(dir); }
             DirectoryInfo root = new DirectoryInfo(dir);

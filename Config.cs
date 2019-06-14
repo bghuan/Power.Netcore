@@ -20,5 +20,9 @@ namespace Power
         // 调用IConfiguration的索引器或者GetSection(string key)即可拿到相应的配置信息
         public static readonly string strCon = configRoot.GetSection("DBConfig").GetSection("MongoDBConnStr").Value;
         public static readonly string strDB = configRoot.GetSection("DBConfig").GetSection("MongoDB").Value;
+        public static readonly string strUser = configRoot.GetSection("DBConfig").GetSection("strUser").Value;
+        public static readonly string strPwd = configRoot.GetSection("DBConfig").GetSection("strPwd").Value;
+        public static readonly string strIP = configRoot.GetSection("DBConfig").GetSection("strIP").Value;
+        public static readonly string dbName = configRoot.GetSection("DBConfig").GetSection("dbName").Value;
     }
 }

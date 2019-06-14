@@ -5,6 +5,11 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove=".gitignore" />
     <None Remove="appsettings.json" />
@@ -18,8 +23,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.0.0-preview4.19216.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.0.0-preview4.19216.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.0.0-preview6.19304.6" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.0.0-preview5.19227.9" />
     <PackageReference Include="MongoDB.Driver" Version="2.9.0-beta1" />
   </ItemGroup>
 

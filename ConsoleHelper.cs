@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Power
 {
     /// <summary>
     /// 控制台帮助类
+    /// Not Linux
     /// </summary>
     public static class ConsoleHelper
     {

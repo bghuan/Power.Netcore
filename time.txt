@@ -251,3 +251,8 @@ Use .NetCore Running at linux easily,But i won't write project at linux
 使用了有词频的权限之后得到系数的反比调整
 如何创造权限
 2019-04-26
+线性词频的线性反馈
+2019-04-27
+偏安一隅的去到权限的无而平静的词频
+2019-06-04
+好久,是因为占据时间的东西吗

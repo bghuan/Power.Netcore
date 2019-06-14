@@ -1,21 +1,45 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Bson;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Power
 {
-    class MongoDB : StaticPower
+    public class MongoDB : StaticPower
     {
-        private static MongoClient client = new MongoClient(Config.strCon);
-        private static IMongoDatabase database = client.GetDatabase(Config.strDB);
+        //private static MongoClient client = new MongoClient(Config.strCon);
+        //private static IMongoDatabase database = client.GetDatabase(Config.strDB);
+        private static MongoClient client;
+        private static IMongoDatabase database;
         private static string default_collection = "In";
         private static string default_key = "str";
+        readonly static int int_init = init();
 
-        public void init()
+        public static int init()
         {
-            var collection = database.GetCollection<BsonDocument>(default_collection);
-            var Ret = collection.Find(new BsonDocument());
+            string strMongoDBServer = string.Format("mongodb://{0}:{1}@{2}/{3}", Config.strUser, Config.strPwd, Config.strIP, Config.dbName);
+            strMongoDBServer = strMongoDBServer.Replace("//:", "//").Replace("//@", "//").Replace(":@", "");
+            MongoUrl url = new MongoUrl(strMongoDBServer);
+            MongoClientSettings settings = MongoClientSettings.FromUrl(url);
+            settings.ServerSelectionTimeout = new TimeSpan(0, 0, 3);
+            client = new MongoClient(settings);
+            try
+            {
+                client.ListDatabaseNames(); // 获取所有的数据库名
+                database = client.GetDatabase(Config.dbName);
+
+                BsonDocument Bson = new BsonDocument("time", DateTime.Now.ToString());
+                Bson.Set("_id", ObjectId.GenerateNewId());
+                var collection = database.GetCollection<BsonDocument>(default_collection);
+                collection.InsertOne(Bson);
+                Console.WriteLine($"mongodb://{client.Settings.Server}/{database.DatabaseNamespace}/{collection.CollectionNamespace.CollectionName}  connection success");
+            }
+            catch
+            {
+                Console.WriteLine($"{client.Settings.Server}/{database.DatabaseNamespace} connection fail");
+            }
+            return 0;
         }
         public List<BsonDocument> Read(BsonDocument Bson)
         {
@@ -168,3 +192,60 @@ namespace Power
         }
     }
 }
+//private static MongoClient client;
+//private static IMongoDatabase database;
+//private static string default_collection = "In";
+//private static string default_key = "str";
+//private static int int_init = init();
+
+//public MongoDB() { init(); }
+//public static int init()
+//{
+//    Console.WriteLine("connect to mongoDB");
+//    Console.Write("user:");
+//    string strUser = Console.ReadLine();
+//    Console.Write("passwd:");
+//    string strPwd = Console.ReadLine();
+//    Console.Write("ip:");
+//    string strIP = Console.ReadLine();
+//    Console.Write("db:");
+//    string dbName = Console.ReadLine();
+//    if (isCheckConnection(strUser, strPwd, strIP, dbName))
+//    {
+//        Console.WriteLine("connection success");
+//    }
+//    else
+//    {
+//        Console.WriteLine("connection fail");
+//    }
+//    return 0;
+//}
+//private static bool isCheckConnection(string strUser, string strPwd, string strIP, string dbName)
+//{
+//    bool flag = true;
+//    var timer = new Timer();
+//    timer.Elapsed += new ElapsedEventHandler(TimerFunction);
+//    timer.Interval = 1000;
+//    timer.Enabled = true;
+//    try
+//    {
+//        string strMongoDBServer = string.Format("mongodb://{0}:{1}@{2}/{3}", strUser, strPwd, strIP, dbName);
+//        MongoUrl url = new MongoUrl(strMongoDBServer);
+//        MongoClientSettings settings = MongoClientSettings.FromUrl(url);
+//        settings.ServerSelectionTimeout = new TimeSpan(0, 0, 10);
+//        client = new MongoClient(settings);
+//        client.ListDatabaseNames(); // 获取所有的数据库名
+//        database = client.GetDatabase(Config.dbName);
+//    }
+//    catch (Exception ex)
+//    {
+//        timer.Enabled = false;
+//        Console.WriteLine(ex);
+//        flag = false;
+//    }
+//    return flag;
+//}
+//private static void TimerFunction(object source, ElapsedEventArgs e)
+//{
+//    Console.Write(" .");
+//}
